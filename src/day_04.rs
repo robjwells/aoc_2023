@@ -1,30 +1,48 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{collections::HashSet, str::FromStr, vec};
 
 const INPUT: &str = include_str!("input/2023_04.txt");
 
 pub fn run() -> String {
     let cards = parse_input(INPUT);
-    let points: Vec<u64> = cards.iter().map(Card::points).collect();
-    aoc_2023::first(points.iter().sum::<u64>())
+    aoc_2023::both(part_one(&cards), part_two(&cards))
+}
+
+fn part_one(cards: &[Card]) -> usize {
+    cards.iter().map(Card::points).sum()
+}
+
+fn part_two(cards: &[Card]) -> usize {
+    let mut counts = vec![1_usize; cards.len()];
+    cards
+        .iter()
+        .map(Card::number_of_winners)
+        .enumerate()
+        .for_each(|(current_idx, winners)| {
+            for new_idx in current_idx + 1..=current_idx + winners {
+                // We get 1 of each new card for each of the current card.
+                counts[new_idx] += counts[current_idx];
+            }
+        });
+    counts.iter().sum()
 }
 
 #[derive(Debug)]
 struct Card {
     #[allow(dead_code)]
-    id: u8,
+    id: usize,
     winners: HashSet<u8>,
     candidates: HashSet<u8>,
 }
 
 impl Card {
-    fn number_of_winners(&self) -> u32 {
-        self.candidates.intersection(&self.winners).count() as u32
+    fn number_of_winners(&self) -> usize {
+        self.candidates.intersection(&self.winners).count()
     }
 
-    fn points(&self) -> u64 {
-        match self.number_of_winners() {
+    fn points(&self) -> usize {
+        match self.number_of_winners() as u32 {
             0 => 0,
-            n => 2_u64.pow(n - 1),
+            n => 2_usize.pow(n - 1),
         }
     }
 }
@@ -41,7 +59,7 @@ impl FromStr for Card {
             Err("Card prefix is incorrect.")?
         };
 
-        let id: u8 = id
+        let id = id
             .trim()
             .parse()
             .map_err(|_e| "Failed to parse card id as a number")?;
@@ -70,6 +88,8 @@ fn parse_input(input: &str) -> Vec<Card> {
 
 #[cfg(test)]
 mod test {
+    use crate::day_04::{part_one, part_two};
+
     use super::{parse_input, Card};
 
     const TEST_INPUT: &str = "\
@@ -94,7 +114,14 @@ mod test {
     #[test]
     fn day4_test_points() {
         let cards = parse_input(TEST_INPUT);
-        let total: u64 = cards.iter().map(|c| c.points()).sum();
-        assert_eq!(total, 13);
+        let points = part_one(&cards);
+        assert_eq!(points, 13);
+    }
+
+    #[test]
+    fn day4_test_total_cards() {
+        let cards = parse_input(TEST_INPUT);
+        let answer = part_two(&cards);
+        assert_eq!(answer, 30);
     }
 }
