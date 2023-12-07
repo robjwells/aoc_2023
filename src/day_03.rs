@@ -1,3 +1,4 @@
+use crate::utils;
 use std::{
     collections::{HashMap, HashSet},
     hash::{Hash, Hasher},
@@ -10,7 +11,7 @@ const INPUT: &str = include_str!("input/2023_03.txt");
 
 pub fn run() -> String {
     let grid = parse::parse_input(INPUT);
-    aoc_2023::both(grid.sum_of_part_numbers(), grid.total_gear_ratio())
+    utils::both(grid.sum_of_part_numbers(), grid.total_gear_ratio())
 }
 
 struct Grid {

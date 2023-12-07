@@ -1,10 +1,11 @@
+use crate::utils;
 use std::{collections::HashSet, str::FromStr, vec};
 
 const INPUT: &str = include_str!("input/2023_04.txt");
 
 pub fn run() -> String {
     let cards = parse_input(INPUT);
-    aoc_2023::both(part_one(&cards), part_two(&cards))
+    utils::both(part_one(&cards), part_two(&cards))
 }
 
 fn part_one(cards: &[Card]) -> usize {

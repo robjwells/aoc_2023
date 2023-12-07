@@ -1,10 +1,11 @@
+use crate::utils;
 use std::str::FromStr;
 
 const PUZZLE_INPUT: &str = include_str!("input/2023_02.txt");
 
 pub fn run() -> String {
     let games = parse_input(PUZZLE_INPUT);
-    aoc_2023::both(part_one(&games), part_two(&games))
+    utils::both(part_one(&games), part_two(&games))
 }
 
 fn parse_input(input: &str) -> Vec<Game> {

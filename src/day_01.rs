@@ -1,7 +1,9 @@
+use crate::utils;
+
 const PUZZLE_INPUT: &str = include_str!("input/2023_01.txt");
 
 pub fn run() -> String {
-    aoc_2023::both(part_one(PUZZLE_INPUT), part_two(PUZZLE_INPUT))
+    utils::both(part_one(PUZZLE_INPUT), part_two(PUZZLE_INPUT))
 }
 
 fn part_one(input: &str) -> u32 {
