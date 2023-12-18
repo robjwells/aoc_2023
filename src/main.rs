@@ -1,11 +1,11 @@
 use std::env::args;
 
-use aoc_2023::{day01, day02, day03, day04, day05};
+use aoc_2023::{day01, day02, day03, day04, day05, day06};
 
 fn main() {
     let day: Option<u8> = args().nth(1).and_then(|s| s.parse().ok());
 
-    let fns = [day01, day02, day03, day04, day05];
+    let fns = [day01, day02, day03, day04, day05, day06];
     if let Some(day) = day {
         let result = match day {
             1 => day01(),
@@ -13,6 +13,7 @@ fn main() {
             3 => day03(),
             4 => day04(),
             5 => day05(),
+            6 => day06(),
             _ => {
                 format!("Day {} not implemented yet.", day)
             }
