@@ -1,15 +1,12 @@
 use std::collections::HashMap;
 
-use crate::utils;
+use crate::utils::{self, lcm};
 
 const INPUT: &str = include_str!("input/2023-08.txt");
 
 pub fn run() -> String {
-    utils::first(part_one(INPUT))
-}
-
-fn part_one(input: &str) -> usize {
-    parse_input(input).steps_to_zzz()
+    let map = parse_input(INPUT);
+    utils::both(map.steps_to_zzz(), map.steps_to_all_z())
 }
 
 #[derive(Debug)]
@@ -49,6 +46,46 @@ impl<'a> Map<'a> {
         }
         unreachable!();
     }
+
+    #[allow(dead_code)]
+    fn steps_to_all_z(&self) -> usize {
+        let mut current_nodes: Vec<&str> = self
+            .map
+            .keys()
+            .filter(|k| k.ends_with('A'))
+            .cloned()
+            .collect();
+        let mut steps_to_end: Vec<usize> = vec![0; current_nodes.len()];
+        for (count, direction) in self.order.iter().cycle().enumerate() {
+            let mut nodes: Vec<&str> = Vec::with_capacity(current_nodes.len());
+            // eprintln!("{:?}\t{:?}\t{:?}", count, current_nodes, steps_to_end);
+            for (idx, n) in current_nodes.iter().enumerate() {
+                let next = if n.ends_with('Z') {
+                    if steps_to_end[idx] == 0 {
+                        steps_to_end[idx] = count;
+                    }
+                    n
+                } else {
+                    let (left, right) = self.map.get(n).unwrap();
+                    match direction {
+                        Direction::Left => left,
+                        Direction::Right => right,
+                    }
+                };
+                nodes.push(next);
+            }
+            // Found a count for each node, so break.
+            if steps_to_end.iter().all(|&n| n != 0) {
+                break;
+            }
+            // Safety valve.
+            if count > 1_000_000 {
+                break;
+            }
+            current_nodes = nodes;
+        }
+        lcm(&steps_to_end)
+    }
 }
 
 fn parse_input(test_input: &str) -> Map<'_> {
@@ -79,9 +116,8 @@ fn parse_input(test_input: &str) -> Map<'_> {
 
 #[cfg(test)]
 mod test {
-    use crate::day_08::part_one;
-
     use super::parse_input;
+    use crate::utils::lcm;
 
     const TEST_INPUT_1: &str = "\
         RL\n\
@@ -101,6 +137,18 @@ mod test {
         BBB = (AAA, ZZZ)\n\
         ZZZ = (ZZZ, ZZZ)";
 
+    const TEST_INPUT_3: &str = "\
+        LR\n\
+        \n\
+        11A = (11B, XXX)\n\
+        11B = (XXX, 11Z)\n\
+        11Z = (11B, XXX)\n\
+        22A = (22B, XXX)\n\
+        22B = (22C, 22C)\n\
+        22C = (22Z, 22Z)\n\
+        22Z = (22B, 22B)\n\
+        XXX = (XXX, XXX)";
+
     #[test]
     fn day8_parse_test_input() {
         let parsed = parse_input(TEST_INPUT_1);
@@ -109,19 +157,50 @@ mod test {
 
     #[test]
     fn day8_part_one_test_reach_zzz_lr() {
-        let steps = part_one(TEST_INPUT_1);
+        let map = parse_input(TEST_INPUT_1);
+        let steps = map.steps_to_zzz();
         assert_eq!(steps, 2);
     }
 
     #[test]
     fn day8_part_one_test_reach_zzz_llr() {
-        let steps = part_one(TEST_INPUT_2);
+        let map = parse_input(TEST_INPUT_2);
+        let steps = map.steps_to_zzz();
         assert_eq!(steps, 6);
     }
 
     #[test]
     fn day8_part_one_real_input() {
-        let steps = part_one(super::INPUT);
+        let map = parse_input(super::INPUT);
+        let steps = map.steps_to_zzz();
         assert_eq!(steps, 22199);
+    }
+
+    #[test]
+    fn day8_test_part_two_parse() {
+        let parsed = parse_input(TEST_INPUT_3);
+        assert_eq!(parsed.map["22A"], ("22B", "XXX"));
+        assert_eq!(parsed.map["XXX"], ("XXX", "XXX"));
+    }
+
+    #[test]
+    fn day8_test_part_two() {
+        let map = parse_input(TEST_INPUT_3);
+        let expected = 6;
+        let result = map.steps_to_all_z();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn day8_test_lcm() {
+        assert_eq!(lcm(&[1, 2, 3, 4, 5]), 60);
+    }
+
+    #[test]
+    fn day8_real_part_two() {
+        let map = parse_input(super::INPUT);
+        let expected: usize = 13334102464297;
+        let result = map.steps_to_all_z();
+        assert_eq!(expected, result);
     }
 }
