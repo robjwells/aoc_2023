@@ -6,7 +6,7 @@ use std::{
 
 use crate::utils;
 
-const INPUT: &str = include_str!("input/2023-07.txt");
+const INPUT: &str = include_str!("input/2023_07.txt");
 
 pub fn run() -> String {
     let hands = parse_input(INPUT);

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::utils::{self, lcm};
 
-const INPUT: &str = include_str!("input/2023-08.txt");
+const INPUT: &str = include_str!("input/2023_08.txt");
 
 pub fn run() -> String {
     let map = parse_input(INPUT);
